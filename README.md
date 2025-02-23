@@ -29,4 +29,4 @@ python EncodeX.py
 
 ## Support 
 
-Feel Free Ask [HEXER](https:https://t.me/H3X4R) for more information.
+Feel Free Ask https://t.me/H3X4R for more information.
