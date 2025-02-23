@@ -9,7 +9,7 @@ This Python script is designed to obfuscate Python source code by encoding . The
 
 - **Multiple Compression Methods**
 - **Strong Encode Method**
-- 
+
 
 ## Requirements
 
