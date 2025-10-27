@@ -1,0 +1,206 @@
+
+## 🔹 VLAN Configuration (Switch)
+
+```bash
+Switch> enable
+Switch# configure terminal
+Switch(config)# vlan 10
+Switch(config-vlan)# name SALES
+Switch(config-vlan)# exit
+
+Switch(config)# interface fastEthernet 0/1
+Switch(config-if)# switchport mode access
+Switch(config-if)# switchport access vlan 10
+Switch(config-if)# exit
+
+Switch(config)# interface range fa0/2 - 4
+Switch(config-if-range)# switchport mode access
+Switch(config-if-range)# switchport access vlan 20
+```
+
+---
+
+## 🔹 Spanning Tree Protocol (STP)
+
+```bash
+Switch(config)# spanning-tree mode rapid-pvst
+Switch(config)# spanning-tree vlan 10 priority 24576
+Switch(config)# spanning-tree portfast default
+Switch(config)# spanning-tree bpduguard enable
+```
+
+---
+
+## 🔹 VTP (VLAN Trunking Protocol)
+
+```bash
+Switch(config)# vtp mode server
+Switch(config)# vtp domain NETWORK
+Switch(config)# vtp password CISCO
+Switch(config)# vtp version 2
+```
+
+---
+
+## 🔹 SSH Configuration
+
+```bash
+Router(config)# hostname R1
+R1(config)# ip domain-name mylab.local
+R1(config)# crypto key generate rsa
+# Choose 1024 or 2048 bits
+R1(config)# username admin privilege 15 secret cisco123
+R1(config)# line vty 0 4
+R1(config-line)# transport input ssh
+R1(config-line)# login local
+R1(config-line)# exit
+R1(config)# ip ssh version 2
+```
+
+---
+
+## 🔹 Telnet Configuration
+
+```bash
+R1(config)# line vty 0 4
+R1(config-line)# password cisco
+R1(config-line)# login
+R1(config-line)# transport input telnet
+```
+
+---
+
+## 🔹 OSPF Configuration
+
+```bash
+en
+config t
+hostname R1
+
+int f0/0
+ip add 192.168.12.1 255.255.255.0
+no sh
+
+int f0/1
+ip add 192.168.13.1 255.255.255.0
+no sh
+
+int f1/0
+ip add 192.168.1.1 255.255.255.0
+no sh
+
+router ospf 1
+
+int f0/0
+ip ospf 1 area 0 
+
+int f0/1
+ip ospf 1 area 0 
+
+int f1/0
+ip ospf 1 area 0 
+
+```
+
+---
+
+## 🔹 EIGRP Configuration
+
+```bash
+
+!R1 Configuration:
+
+en
+config t
+hostname R1
+
+int f0/0
+ip add 192.168.12.1 255.255.255.0
+no sh
+
+
+int f0/1
+ip add 192.168.14.1 255.255.255.0
+no sh
+
+router eigrp 1
+network 192.168.12.0 
+network 192.168.14.0 
+no auto-summary
+
+---
+
+## 🔹 Standard ACL (Access Control List)
+
+```bash
+R1(config)# access-list 10 permit 192.168.1.0 0.0.0.255
+R1(config)# access-list 10 deny any
+R1(config)# interface gig0/0
+R1(config-if)# ip access-group 10 in
+```
+
+---
+
+## 🔹 Extended ACL
+
+```bash
+R1(config)# access-list 100 permit tcp 192.168.1.0 0.0.0.255 any eq 80
+R1(config)# access-list 100 deny ip any any
+R1(config)# interface gig0/0
+R1(config-if)# ip access-group 100 out
+```
+
+---
+
+## 🔹 DHCP Configuration
+
+```bash
+R1(config)# ip dhcp excluded-address 192.168.1.1 192.168.1.10
+R1(config)# ip dhcp pool LAN
+R1(dhcp-config)# network 192.168.1.0 255.255.255.0
+R1(dhcp-config)# default-router 192.168.1.1
+R1(dhcp-config)# dns-server 8.8.8.8
+R1(dhcp-config)# lease 7
+```
+
+---
+# NAT
+
+R1(config)# interface gig0/0
+R1(config-if)# ip address 203.0.113.1 255.255.255.0
+R1(config-if)# ip nat outside
+R1(config-if)# exit
+
+R1(config)# interface gig0/1
+R1(config-if)# ip address 192.168.1.1 255.255.255.0
+R1(config-if)# ip nat inside
+R1(config-if)# exit
+
+R1(config)# ip nat inside source static 192.168.1.10 203.0.113.10
+
+PAT
+! Configure the router interfaces
+interface gigabitEthernet 0/1
+ ip address 192.168.1.1 255.255.255.0
+ no shutdown
+
+interface gigabitEthernet 0/0
+ ip address 203.0.113.1 255.255.255.252
+ no shutdown
+
+! Define NAT Access List
+access-list 1 permit 192.168.1.0 0.0.0.255
+
+! Configure NAT for PAT
+ip nat inside source list 1 interface gigabitEthernet 0/0 overload
+
+! Specify inside and outside interfaces
+interface gigabitEthernet 0/1
+ ip nat inside
+
+interface gigabitEthernet 0/0
+ ip nat outside
+
+! Verify NAT Translation
+show ip nat translations
+
