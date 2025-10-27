@@ -159,6 +159,9 @@ R1(config)# ip dhcp excluded-address 192.168.1.1 192.168.1.10
 R1(config)# ip dhcp pool LAN
 R1(dhcp-config)# network 192.168.1.0 255.255.255.0
 R1(dhcp-config)# default-router 192.168.1.1
+
+
+
 R1(dhcp-config)# dns-server 8.8.8.8
 R1(dhcp-config)# lease 7
 ```
@@ -204,3 +207,50 @@ interface gigabitEthernet 0/0
 ! Verify NAT Translation
 show ip nat translations
 
+
+Vlan 
+
+
+Router> enable
+Router# configure terminal
+
+! Create subinterfaces for each VLAN
+Router(config)# interface gigabitEthernet0/0.10
+Router(config-subif)# encapsulation dot1Q 10
+Router(config-subif)# ip address 192.168.10.1 255.255.255.0
+Router(config-subif)# exit
+
+Router(config)# interface gigabitEthernet0/0.20
+Router(config-subif)# encapsulation dot1Q 20
+Router(config-subif)# ip address 192.168.20.1 255.255.255.0
+Router(config-subif)# exit
+
+! Enable the main interface
+Router(config)# interface gigabitEthernet0/0
+Router(config-if)# no shutdown
+Router(config-if)# exit
+
+
+hsrp
+
+Router1> enable
+Router1# configure terminal
+
+interface gigabitEthernet 0/0
+ ip address 192.168.10.2 255.255.255.0
+ standby 1 ip 192.168.10.1
+ standby 1 priority 110
+ standby 1 preempt
+ no shutdown
+
+Stand by :
+
+Router2> enable
+Router2# configure terminal
+
+interface gigabitEthernet 0/0
+ ip address 192.168.10.3 255.255.255.0
+ standby 1 ip 192.168.10.1
+ standby 1 priority 100
+ standby 1 preempt
+ no shutdown
